@@ -4,7 +4,7 @@ use std::num::ParseIntError;
 use chrono::Utc;
 use regex::Regex;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq)]
 pub struct DwVersion {
     has_prefix: bool,
     major: u64,
@@ -167,6 +167,12 @@ impl Ord for DwVersion {
             return self.patch.cmp(&other.patch);
         }
         Ordering::Equal
+    }
+}
+
+impl PartialEq<Self> for DwVersion {
+    fn eq(&self, other: &Self) -> bool {
+        self.major == other.major && self.minor == other.minor && self.patch == other.patch
     }
 }
 

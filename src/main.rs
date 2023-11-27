@@ -32,11 +32,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             version = version.plus_patch();
             version
         }
+
         Some(tag) => {
            let find= tags
                 .iter()
                 .flat_map(|tag| DwVersion::parse(tag.unwrap()))
-                .find(|v| v.to_string() == tag);
+                .find(|v|  DwVersion::from(tag.as_str()).eq(v));
             match find {
                 None => {
                     DwVersion::from(tag.as_str())
