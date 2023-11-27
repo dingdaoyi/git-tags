@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, format, Formatter};
+use std::num::ParseIntError;
 use chrono::Utc;
 use regex::Regex;
 
@@ -15,6 +16,7 @@ pub struct DwVersion {
 
 impl DwVersion {
     pub fn parse(param_version: &str) -> Option<DwVersion> {
+        println!("param_version:{}", param_version);
         let mut version_suffix = param_version.split('_');
         let version = version_suffix.next().unwrap();
         let mut version = version.split('.');
@@ -22,12 +24,24 @@ impl DwVersion {
         let major;
         let has_prefix = major_prefix.contains("v");
         if has_prefix {
-            major = major_prefix.replace("v", "").parse::<u64>().unwrap();
+            major = match major_prefix.replace("v", "").parse::<u64>() {
+                Ok(major) => major,
+                Err(_) => 0
+            };
         } else {
-            major = major_prefix.parse::<u64>().unwrap();
+            major = match major_prefix.parse::<u64>() {
+                Ok(major) => major,
+                Err(_) => 0
+            };
         }
-        let minor = version.next().unwrap().parse::<u64>().unwrap();
-        let patch = version.next().unwrap().parse::<u64>().unwrap();
+        let minor = match version.next().unwrap_or("0").parse::<u64>() {
+            Ok(minor) => minor,
+            Err(_) => 0
+        };
+        let patch = match version.next().unwrap_or("0").parse::<u64>() {
+            Ok(patch) => patch,
+            Err(_) => 0
+        };
         let next = version_suffix.next();
         if next.is_none() {
             return Some(DwVersion {
@@ -192,7 +206,7 @@ mod testing {
 
     #[test]
     pub fn is_valid_version() {
-        let version = DwVersion::is_valid_version("v1.0.0");
+        let version = DwVersion::is_valid_version("v1.0.0g");
         assert!(version, "v1.0.0 is valid version");
     }
 

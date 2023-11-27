@@ -1,6 +1,5 @@
 mod version;
 
-use std::fmt::format;
 use std::fs::File;
 use std::io::Write;
 use git2::{Repository, Signature, Error, RemoteCallbacks, Cred, PushOptions};
@@ -24,18 +23,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // 找到最后一个标签
             let last_tag = tags
                 .iter()
+                .filter(|tag|DwVersion::is_valid_version(tag.unwrap()))
                 .flat_map(|tag| DwVersion::parse(tag.unwrap()))
                 .max_by(|a, b| a.cmp(b));
-            last_tag.unwrap_or_else(|| DwVersion::parse("v1.0.0").unwrap())
+          let mut version =  last_tag.unwrap_or_else(|| DwVersion::parse("v1.0.0").unwrap());
+            // 解析最后一个标签的版本号
+            println!("version: {:?}", version);
+            version = version.plus_patch();
+            version.set_pre(format!("{}", args.env));
+            version.auto_set_build();
+            version
         }
-        Some(tag) => { DwVersion::from(tag.as_str()) }
+        Some(tag) => {
+           let find= tags
+                .iter()
+                .flat_map(|tag| DwVersion::parse(tag.unwrap()))
+                .find(|v| v.to_string() == tag);
+            match find {
+                None => {
+                    DwVersion::from(tag.as_str())
+                }
+                Some(_) => {
+                    let v = DwVersion::from(tag.as_str());
+                    panic!("tag已存在,请重新输入: {}", v);
+                }
+            }
+        }
     };
 
-    // 解析最后一个标签的版本号
-    println!("version: {:?}", version);
-    version = version.plus_patch();
-    version.set_pre(format!("{}", args.env));
-    version.auto_set_build();
     // 构建新版本号
     let new_version = version.to_string();
 
@@ -67,7 +82,7 @@ fn tag_commit(repo: &Repository, commit: &git2::Commit, tag_name: &str, tag_mess
     let signature = Signature::now(username, email)?;
 
     // 创建标签
-    repo.tag(tag_name, commit.as_object(), &signature, tag_message, false)?;
+    repo.tag(tag_name, commit.as_object(), &signature, tag_message, true)?;
 
     Ok(())
 }
