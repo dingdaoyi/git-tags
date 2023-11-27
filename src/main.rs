@@ -30,8 +30,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // 解析最后一个标签的版本号
             println!("version: {:?}", version);
             version = version.plus_patch();
-            version.set_pre(format!("{}", args.env));
-            version.auto_set_build();
             version
         }
         Some(tag) => {
@@ -50,7 +48,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     };
-
+    version.set_pre(format!("{}", args.env));
+    version.auto_set_build();
     // 构建新版本号
     let new_version = version.to_string();
 
