@@ -1,4 +1,4 @@
-FROM rust:1.73-alpine as builder
+FROM rust:1.73 as builder
 WORKDIR /
 RUN apt update && apt install -y musl-tools
 RUN rustup target add x86_64-unknown-linux-musl

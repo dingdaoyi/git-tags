@@ -107,7 +107,7 @@ struct Cli {
     username: String,
     #[structopt(short = "a", long = "access_token", help = "密码")]
     access_token: String,
-    #[structopt(short = "e", long = "email", default_value = "xiaozhiyun@163.com", help = "邮箱")]
+    #[structopt(short = "em", long = "email", default_value = "xiaozhiyun@163.com", help = "邮箱")]
     email: String,
 }
 
