@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-git2 = "0.18"
+git2 = {version = "0.18",features = ["vendored-libgit2"]}
 chrono = "0.4"
 structopt = "0.3"
 regex = "1.9"
